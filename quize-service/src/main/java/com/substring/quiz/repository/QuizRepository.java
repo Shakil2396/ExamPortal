@@ -1,0 +1,12 @@
+package com.substring.quiz.repository;
+
+import com.substring.quiz.collections.Quiz;
+import org.apache.catalina.LifecycleState;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+
+public interface QuizRepository extends MongoRepository<Quiz, String> {
+
+    List<Quiz> findByTitle(String title);
+}
