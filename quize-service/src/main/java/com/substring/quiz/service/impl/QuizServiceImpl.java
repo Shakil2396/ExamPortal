@@ -1,0 +1,178 @@
+package com.substring.quiz.service.impl;
+
+import com.substring.quiz.collections.Quiz;
+import com.substring.quiz.dtos.CategoryDto;
+import com.substring.quiz.dtos.QuizDto;
+import com.substring.quiz.repository.QuizRepository;
+import com.substring.quiz.service.CategoryService;
+import com.substring.quiz.service.QuizService;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class QuizServiceImpl implements QuizService {
+
+    private Logger logger = org.slf4j.LoggerFactory.getLogger(QuizServiceImpl.class);
+
+    private final QuizRepository quizRepository;
+
+    private final ModelMapper modelMapper;
+
+    private final RestTemplate restTemplate;
+
+//    private final WebClient webClient;
+
+    private final CategoryService categoryService;
+
+//    private final CategoryFeignService categoryFeignService;
+//
+//    private StreamBridge streamBridge;
+
+    //, CategoryFeignService categoryFeignService, StreamBridge streamBridge
+    public QuizServiceImpl(QuizRepository quizRepository, ModelMapper modelMapper, RestTemplate restTemplate, CategoryService categoryService) {
+        this.quizRepository = quizRepository;
+        this.modelMapper = modelMapper;
+        this.restTemplate = restTemplate;
+        this.categoryService = categoryService;
+//        this.categoryFeignService = categoryFeignService;
+//        this.streamBridge = streamBridge;
+//        this.webClient = webClient;
+    }
+
+    @Override
+    public QuizDto create(QuizDto quizDto) {
+
+        Quiz quiz = modelMapper.map(quizDto, Quiz.class);
+        quiz.setId(UUID.randomUUID().toString());
+
+         //validate category:
+        String url = "http://localhost:9091/api/v1/categories/" + quizDto.getCategoryId();
+        logger.info(url);
+        // call to category service
+        CategoryDto category = restTemplate.getForObject(url, CategoryDto.class);
+        logger.info("category exists: " + category.getTitle());
+
+        Quiz savedQuiz = quizRepository.save(quiz);
+        QuizDto quizDto1 = modelMapper.map(savedQuiz, QuizDto.class);
+        quizDto1.setCategoryDto(category);
+
+
+        //quiz created event ko publish kar diya
+//        publishQuizCreatedEvent(quizDto1);
+
+        return quizDto1;
+    }
+
+
+    //event public
+//    private void publishQuizCreatedEvent(QuizDto quizDto) {
+//        logger.info("Quiz created going to publish quiz created event:");
+//        var status = this.streamBridge.send("quizCreatedBinding-out-0", quizDto);
+//        if (status)
+//            logger.info("event is sent to broker");
+//        else
+//            logger.info("event is not sent to  broker");
+//    }
+
+    @Override
+    public QuizDto update(String quizId, QuizDto quizDto) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
+        quiz.setTitle(quizDto.getTitle());
+        quiz.setDescription(quizDto.getDescription());
+        quiz.setMaxMarks(quizDto.getMaxMarks());
+        quiz.setTimeLimit(quizDto.getTimeLimit());
+        quiz.setCreatedBy(quizDto.getCreatedBy());
+        quiz.setNoOfQuestions(quizDto.getNoOfQuestions());
+        quiz.setImageUrl(quizDto.getImageUrl());
+        quiz.setLive(quizDto.getLive());
+        quiz.setPassingMarks(quizDto.getPassingMarks());
+        quiz.setCategoryId(quizDto.getCategoryId());
+
+        Quiz updatedQuiz = quizRepository.save(quiz);
+        QuizDto quizDto1 = modelMapper.map(updatedQuiz, QuizDto.class);
+        return quizDto1;
+    }
+
+    @Override
+    public void delete(String quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
+        quizRepository.delete(quiz);
+    }
+
+    @Override
+    public List<QuizDto> findAll() {
+        List<Quiz> all = quizRepository.findAll();
+
+        // getting category of all quiz
+        List<QuizDto> quizDtos = all.stream().map(quiz -> {
+            String categoryId = quiz.getCategoryId();
+            QuizDto quizDto = modelMapper.map(quiz, QuizDto.class);
+
+            //getting category
+            CategoryDto categoryDto = this.categoryService.findById(categoryId);
+            quizDto.setCategoryDto(categoryDto);
+            return quizDto;
+        }).toList();
+
+        return quizDtos;
+    }
+
+
+    @Override
+//    @CircuitBreaker(name = "quizCB", fallbackMethod = "quizFallback")
+    public QuizDto findById(String quizId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
+        QuizDto quizDto = modelMapper.map(quiz, QuizDto.class);
+
+
+        String categoryId = quiz.getCategoryId();
+
+        String url = "http://localhost:9091/api/v1/categories/" + categoryId;
+        logger.info(url);
+        // call to category service
+        CategoryDto category = restTemplate.getForObject(url, CategoryDto.class);
+        //Thread waits for response
+        logger.info("category exists: {}", category.getTitle());
+        logger.info("Call completed");
+
+        quizDto.setCategoryDto(category);
+        return quizDto;
+    }
+
+//    public QuizDto quizFallback(String quizId, Throwable t) {
+//
+//        logger.error("Category not found");
+//        CategoryDto categoryDto = new CategoryDto();
+//        categoryDto.setTitle("Fallback category");
+//        return new QuizDto();
+//    }
+
+
+    @Override
+    public List<QuizDto> findByCategory(String categoryId) {
+        List<Quiz> all = quizRepository.findByCategoryId(categoryId);
+        return all.stream().map(quiz ->
+            modelMapper.map(quiz, QuizDto.class)
+            ///  call category service to get category and put in category dto
+//            CategoryDto categoryDto = null;
+//            try {
+//                categoryDto = categoryFeignService.findById(quizDto.getCategoryId());
+//            } catch (FeignException.NotFound ex) {
+//                logger.error("category not found");
+//            }
+//            quizDto.setCategoryDto(categoryDto);
+//            return quizDto;
+
+        ).toList();
+
+
+    }
+}
