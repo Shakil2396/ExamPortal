@@ -1,8 +1,6 @@
 package com.substring.quiz.service.impl;
 
-import com.substring.quiz.collections.Quiz;
 import com.substring.quiz.dtos.CategoryDto;
-import com.substring.quiz.dtos.QuizDto;
 import com.substring.quiz.service.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -16,31 +14,31 @@ import java.util.List;
 
 
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceWebClientImpl implements CategoryService {
 
     private final RestTemplate restTemplate;
 
     private final WebClient webClient;
 
-//    private final WebClient.Builder webClientBuilder;
+    private final WebClient.Builder webClientBuilder;
 
     private ModelMapper modelMapper;
 
-    private final Logger logger = org.slf4j.LoggerFactory.getLogger(CategoryServiceImpl.class);
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(CategoryServiceWebClientImpl.class);
 
-//    public CategoryServiceWebclientImpl(RestTemplate restTemplate, WebClient.Builder webClientBuilder, ModelMapper modelMapper) {
-//        this.restTemplate = restTemplate;
-//        this.webClientBuilder = webClientBuilder;
-//        this.modelMapper = modelMapper;
-//        this.webClient = webClientBuilder.baseUrl("lb://CATEGORY-SERVICE").build();
-//    }
-
-
-    public CategoryServiceImpl(RestTemplate restTemplate, WebClient webClient, ModelMapper modelMapper) {
+    public CategoryServiceWebClientImpl(RestTemplate restTemplate, WebClient.Builder webClientBuilder, ModelMapper modelMapper) {
         this.restTemplate = restTemplate;
-        this.webClient = webClient;
+        this.webClientBuilder = webClientBuilder;
         this.modelMapper = modelMapper;
+        this.webClient = webClientBuilder.baseUrl("lb://CATEGORY-SERVICE").build();
     }
+
+
+//    public CategoryServiceWebClientImpl(RestTemplate restTemplate, WebClient webClient, ModelMapper modelMapper) {
+//        this.restTemplate = restTemplate;
+//        this.webClient = webClient;
+//        this.modelMapper = modelMapper;
+//    }
 
     @Override
     public CategoryDto findById(String categoryId) {

@@ -73,7 +73,7 @@ public class QuizController {
     }
 
 
-    //get by category
+    //get quizes with the help of category id
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<QuizDto>> findByCategory(@PathVariable("categoryId") String categoryId) {
         return new ResponseEntity<>(quizService.findByCategory(categoryId), HttpStatus.OK);

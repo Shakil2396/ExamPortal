@@ -1,6 +1,8 @@
 package com.substring.quiz.config;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -13,25 +15,26 @@ public class ProjectConfig {
     public ModelMapper modelMapper(){
         return new ModelMapper();
     }
+
     @Bean
-//    @LoadBalanced
+    @LoadBalanced
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
 
-//    @Bean
-////    @LoadBalanced
-//    public WebClient.Builder webClient() {
-//        return WebClient.builder();
-//    }
-
     @Bean
-    public WebClient webClient() {
-        return WebClient.builder()
-                .baseUrl("http://localhost:9091")  //suppose if i want to call quize-service then that url here
-                .build();
+    @LoadBalanced
+    public WebClient.Builder webClient() {
+        return WebClient.builder();
     }
+
+//    @Bean
+//    public WebClient webClient() {
+//        return WebClient.builder()
+//                .baseUrl("http://localhost:9091")  //suppose if i want to call quize-service then that url here
+//                .build();
+//    }
 
 }
 
