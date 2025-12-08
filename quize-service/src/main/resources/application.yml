@@ -2,6 +2,11 @@ spring:
   application:
     name: quize-service
 
+  cloud:
+    inetutils:
+      preferred-networks:
+        - 127\.0\.0\.1
+
   data:
     mongodb:
       uri: mongodb://localhost:27017/quizedb
@@ -9,10 +14,16 @@ spring:
 server:
   port: 9092
 
-  # ===== Service Discovery Client (Eureka) Config =====
-  eureka:
-    client:
-      register-with-eureka: true
-      fetch-registry: true
-      service-url:
-        defaultZone: http://localhost:8761/eureka/
+# ===== Service Discovery Client (Eureka) Config =====
+eureka:                        # <-- MUST be top level
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: 127.0.0.1
+    instance-id: "${spring.application.name}:${server.port}"
