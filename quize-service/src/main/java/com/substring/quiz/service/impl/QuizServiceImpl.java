@@ -8,6 +8,7 @@ import com.substring.quiz.service.CategoryFeignService;
 import com.substring.quiz.service.CategoryService;
 import com.substring.quiz.service.QuizService;
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -129,7 +130,7 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-//    @CircuitBreaker(name = "quizCB", fallbackMethod = "quizFallback")
+    @CircuitBreaker(name = "quizCB", fallbackMethod = "quizFallback")
     public QuizDto findById(String quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
         QuizDto quizDto = modelMapper.map(quiz, QuizDto.class);
@@ -149,13 +150,13 @@ public class QuizServiceImpl implements QuizService {
         return quizDto;
     }
 
-//    public QuizDto quizFallback(String quizId, Throwable t) {
-//
-//        logger.error("Category not found");
-//        CategoryDto categoryDto = new CategoryDto();
-//        categoryDto.setTitle("Fallback category");
-//        return new QuizDto();
-//    }
+    public QuizDto quizFallback(String quizId, Throwable t) {
+
+        logger.error("Category not found");
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setTitle("Fallback category");
+        return new QuizDto();
+    }
 
 
     @Override

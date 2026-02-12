@@ -2,10 +2,26 @@ spring:
   application:
     name: quize-service
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  profiles:
+    active: dev
+
+  config:
+    import: "optional:configserver:http://localhost:9094"
+
   cloud:
     inetutils:
       preferred-networks:
         - 127\.0\.0\.1
+
+  function:
+    web:
+      path: "/functions"
 
   data:
     mongodb:
@@ -13,6 +29,12 @@ spring:
 
 server:
   port: 9092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
 # ===== Service Discovery Client (Eureka) Config =====
 eureka:                        # <-- MUST be top level
@@ -27,3 +49,14 @@ eureka:                        # <-- MUST be top level
     ip-address: 127.0.0.1
     hostname: 127.0.0.1
     instance-id: "${spring.application.name}:${server.port}"
+
+resilience4j.circuitbreaker:
+  instances:
+    quizCB:
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 2
+      failureRateThreshold: 50
+      minimum-number-of-calls: 10
+      maxWaitDurationInHalfOpenState: 5000

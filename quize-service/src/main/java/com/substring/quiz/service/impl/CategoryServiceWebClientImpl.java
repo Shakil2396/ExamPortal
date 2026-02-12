@@ -1,10 +1,13 @@
 package com.substring.quiz.service.impl;
 
 import com.substring.quiz.dtos.CategoryDto;
+import com.substring.quiz.dtos.QuizDto;
 import com.substring.quiz.service.CategoryService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -43,7 +46,7 @@ public class CategoryServiceWebClientImpl implements CategoryService {
     @Override
     public CategoryDto findById(String categoryId) {
 
-            try {
+//            try {
                 CategoryDto category = this.webClient
                         .get()
                         .uri("/api/v1/categories/{id}", categoryId)  //first it will take base url then this url to call
@@ -53,17 +56,18 @@ public class CategoryServiceWebClientImpl implements CategoryService {
 
                 return category;
 
-            }catch (WebClientResponseException ex){
-
-                if(ex.getStatusCode().equals(HttpStatus.NOT_FOUND)){
-                    logger.error("category not found");
-                } else if (ex.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                    logger.info("internal server error");
-                }
-                ex.printStackTrace();
-            }
-            return null;
+//            }catch (WebClientResponseException ex){
+//
+//                if(ex.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+//                    logger.error("category not found");
+//                } else if (ex.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+//                    logger.info("internal server error");
+//                }
+//                ex.printStackTrace();
+//            }
+//            return null;
     }
+
 
 
     //how to perform all the operation using webclient just understand the concept

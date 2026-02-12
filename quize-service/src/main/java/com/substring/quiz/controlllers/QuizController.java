@@ -2,6 +2,7 @@ package com.substring.quiz.controlllers;
 
 import com.substring.quiz.dtos.QuizDto;
 import com.substring.quiz.service.QuizService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
