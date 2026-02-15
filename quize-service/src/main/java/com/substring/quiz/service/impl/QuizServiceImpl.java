@@ -11,6 +11,7 @@ import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -36,17 +37,17 @@ public class QuizServiceImpl implements QuizService {
     private final CategoryService categoryService;
 
     private final CategoryFeignService categoryFeignService;
-//
-//    private StreamBridge streamBridge;
 
-    //, StreamBridge streamBridge
-    public QuizServiceImpl(QuizRepository quizRepository, ModelMapper modelMapper, RestTemplate restTemplate, CategoryService categoryService, CategoryFeignService categoryFeignService) {
+    //spring cloud stream provide one class StreamBridge to publish the events
+    private StreamBridge streamBridge;
+
+    public QuizServiceImpl(QuizRepository quizRepository, ModelMapper modelMapper, RestTemplate restTemplate, CategoryService categoryService, CategoryFeignService categoryFeignService, StreamBridge streamBridge) {
         this.quizRepository = quizRepository;
         this.modelMapper = modelMapper;
         this.restTemplate = restTemplate;
         this.categoryService = categoryService;
         this.categoryFeignService = categoryFeignService;
-//        this.streamBridge = streamBridge;
+        this.streamBridge = streamBridge;
 //        this.webClient = webClient;
     }
 
@@ -69,21 +70,21 @@ public class QuizServiceImpl implements QuizService {
 
 
         //quiz created event ko publish kar diya
-//        publishQuizCreatedEvent(quizDto1);
+        publishQuizCreatedEvent(quizDto1);
 
         return quizDto1;
     }
 
 
     //event public
-//    private void publishQuizCreatedEvent(QuizDto quizDto) {
-//        logger.info("Quiz created going to publish quiz created event:");
-//        var status = this.streamBridge.send("quizCreatedBinding-out-0", quizDto);
-//        if (status)
-//            logger.info("event is sent to broker");
-//        else
-//            logger.info("event is not sent to  broker");
-//    }
+    private void publishQuizCreatedEvent(QuizDto quizDto) {
+        logger.info("Quiz created going to publish quiz created event:");
+        var status = this.streamBridge.send("quizCreatedBinding-out-0", quizDto);
+        if (status)
+            logger.info("event is sent to broker");
+        else
+            logger.info("event is not sent to  broker");
+    }
 
     @Override
     public QuizDto update(String quizId, QuizDto quizDto) {

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -31,14 +32,13 @@ public class InformationService {
     }
 
 
-//    // receive acknowledgement
-//    @Bean
-//    public Consumer<String> acknowledgeInformation() {
-//        return information->{
-//            System.out.println("acknowledgement received");
-//            System.out.println(information);
-//        };
-//    }
-
+    // receive acknowledgement
+    @Bean
+    public Consumer<String> acknowledgeInformation() { //acknowledgeInformation esko mention krna hoga yml me
+        return information->{
+            System.out.println("acknowledgement received");
+            System.out.println(information);
+        };
+    }
 
 }

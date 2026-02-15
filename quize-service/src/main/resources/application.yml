@@ -23,6 +23,7 @@ spring:
     web:
       path: "/functions"
 
+
   data:
     mongodb:
       uri: mongodb://localhost:27017/quizedb
@@ -60,3 +61,26 @@ resilience4j.circuitbreaker:
       failureRateThreshold: 50
       minimum-number-of-calls: 10
       maxWaitDurationInHalfOpenState: 5000
+
+  cloud:
+    function:
+      web:
+        path: "/functions"
+      definition: acknowledgeInformation
+    stream:
+      defaultBinder: KafkaBinder
+      binders:
+        KafkaBinder:
+          type: kafka
+      kafka:
+        binder:
+          brokers:
+            - localhost:9098
+
+      bindings:
+        quizCreatedBinding-out-0:
+          destination: quiz-created
+          group: ${spring.application.name}
+        acknowledgeInformation-in-0:
+          destination: acknowledge-quiz
+          group: ${spring.application.name}
