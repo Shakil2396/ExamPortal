@@ -40,5 +40,4 @@ public class InformationService {
             System.out.println(information);
         };
     }
-
 }
